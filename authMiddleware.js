@@ -15,3 +15,4 @@ function authMiddleware(role) {
 }
 
 module.exports = authMiddleware;
+

@@ -15,3 +15,17 @@ router.post('/users', authMiddleware('admin'), async (req, res) => {
   );
   res.json({ message: 'User created successfully' });
 });
+
+// Dashboard stats
+router.get('/dashboard', authMiddleware('admin'), async (req, res) => {
+  const [users] = await pool.query('SELECT COUNT(*) AS totalUsers FROM users');
+  const [stores] = await pool.query('SELECT COUNT(*) AS totalStores FROM stores');
+  const [ratings] = await pool.query('SELECT COUNT(*) AS totalRatings FROM ratings');
+  res.json({
+    totalUsers: users[0].totalUsers,
+    totalStores: stores[0].totalStores,
+    totalRatings: ratings[0].totalRatings
+  });
+});
+
+module.exports = router;
