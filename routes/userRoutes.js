@@ -41,4 +41,25 @@ router.put('/update-password', authMiddleware('user'), async (req, res) => {
   res.json({ message: 'Password updated successfully' });
 });
 
+
+// View stores with ratings
+router.get('/stores', authMiddleware('user'), async (req, res) => {
+  const { name, address } = req.query;
+  let query = `
+    SELECT s.id, s.name, s.address, AVG(r.rating) AS overallRating,
+           (SELECT rating FROM ratings WHERE store_id = s.id AND user_id = ?) AS userRating
+    FROM stores s
+    LEFT JOIN ratings r ON s.id = r.store_id
+    WHERE 1=1
+  `;
+  let params = [req.user.id];
+
+  if (name) { query += ' AND s.name LIKE ?'; params.push(`%${name}%`); }
+  if (address) { query += ' AND s.address LIKE ?'; params.push(`%${address}%`); }
+
+  query += ' GROUP BY s.id';
+  const [rows] = await pool.query(query, params);
+  res.json(rows);
+});
+
 module.exports = router;
