@@ -62,4 +62,28 @@ router.get('/stores', authMiddleware('user'), async (req, res) => {
   res.json(rows);
 });
 
+
+// Submit or update rating
+router.post('/rate', authMiddleware('user'), async (req, res) => {
+    const { storeId, rating } = req.body;
+  const [existing] = await pool.query(
+    'SELECT * FROM ratings WHERE store_id = ? AND user_id = ?',
+    [storeId, req.user.id]
+  );
+
+  if (existing.length > 0) {
+    await pool.query(
+      'UPDATE ratings SET rating = ? WHERE store_id = ? AND user_id = ?',
+      [rating, storeId, req.user.id]
+    );
+    res.json({ message: 'Rating updated successfully' });
+  } else {
+    await pool.query(
+      'INSERT INTO ratings (store_id, user_id, rating) VALUES (?, ?, ?)',
+      [storeId, req.user.id, rating]
+    );
+    res.json({ message: 'Rating submitted successfully' });
+  }
+});
+
 module.exports = router;
