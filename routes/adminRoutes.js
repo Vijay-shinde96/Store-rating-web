@@ -40,4 +40,20 @@ router.get('/stores', authMiddleware('admin'), async (req, res) => {
   res.json(rows);
 });
 
+
+// List users with filters
+router.get('/users', authMiddleware('admin'), async (req, res) => {
+  const { name, email, address, role } = req.query;
+  let query = 'SELECT name, email, address, role FROM users WHERE 1=1';
+  let params = [];
+
+  if (name) { query += ' AND name LIKE ?'; params.push(`%${name}%`); }
+  if (email) { query += ' AND email LIKE ?'; params.push(`%${email}%`); }
+  if (address) { query += ' AND address LIKE ?'; params.push(`%${address}%`); }
+  if (role) { query += ' AND role = ?'; params.push(role); }
+
+  const [rows] = await pool.query(query, params);
+  res.json(rows);
+});
+
 module.exports = router;
