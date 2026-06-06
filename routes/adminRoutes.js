@@ -16,6 +16,7 @@ router.post('/users', authMiddleware('admin'), async (req, res) => {
   res.json({ message: 'User created successfully' });
 });
 
+
 // Dashboard stats
 router.get('/dashboard', authMiddleware('admin'), async (req, res) => {
   const [users] = await pool.query('SELECT COUNT(*) AS totalUsers FROM users');
@@ -27,6 +28,7 @@ router.get('/dashboard', authMiddleware('admin'), async (req, res) => {
     totalRatings: ratings[0].totalRatings
   });
 });
+
 
 // List stores with ratings
 router.get('/stores', authMiddleware('admin'), async (req, res) => {
@@ -55,5 +57,6 @@ router.get('/users', authMiddleware('admin'), async (req, res) => {
   const [rows] = await pool.query(query, params);
   res.json(rows);
 });
+
 
 module.exports = router;

@@ -5,6 +5,7 @@ const pool = require('../db');
 const authMiddleware = require('../authMiddleware');
 const router = express.Router();
 
+
 // Signup
 router.post('/signup', async (req, res) => {
   const { name, email, address, password } = req.body;
@@ -15,6 +16,7 @@ router.post('/signup', async (req, res) => {
   );
   res.json({ message: 'User registered successfully' });
 });
+
 
 // Login
 router.post('/login', async (req, res) => {
@@ -29,4 +31,14 @@ router.post('/login', async (req, res) => {
   const token = jwt.sign({ id: user.id, role: user.role }, 'secretkey', { expiresIn: '1h' });
   res.json({ token });
 });
+
+
+// Update password
+router.put('/update-password', authMiddleware('user'), async (req, res) => {
+  const { newPassword } = req.body;
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, req.user.id]);
+  res.json({ message: 'Password updated successfully' });
+});
+
 module.exports = router;
