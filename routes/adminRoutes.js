@@ -28,4 +28,16 @@ router.get('/dashboard', authMiddleware('admin'), async (req, res) => {
   });
 });
 
+// List stores with ratings
+router.get('/stores', authMiddleware('admin'), async (req, res) => {
+  const [rows] = await pool.query(`
+    SELECT s.name, u.email, u.address, AVG(r.rating) AS avgRating
+    FROM stores s
+    JOIN users u ON s.owner_id = u.id
+    LEFT JOIN ratings r ON s.id = r.store_id
+    GROUP BY s.id
+  `);
+  res.json(rows);
+});
+
 module.exports = router;
